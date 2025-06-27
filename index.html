@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz FMP</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1D396C;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .quiz-container {
+      background: linear-gradient(145deg, #279DD9, #1488CA);
+      padding: 2rem;
+      border-radius: 20px;
+      max-width: 700px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    #start-screen h1 {
+      font-size: 2.5rem;
+      color: #FFDB03;
+      margin-bottom: 1rem;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    #start-screen p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #ffffffcc;
+    }
+
+    button {
+      background-color: #A3175B;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #80388D;
+      transform: scale(1.05);
+    }
+
+    .question {
+      margin: 1rem 0;
+      font-size: 1.2rem;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      background-color: #FFDB03;
+      color: #1D396C;
+      font-weight: bold;
+    }
+
+    .correct {
+      background-color: #3FAB37 !important;
+    }
+
+    .wrong {
+      background-color: #E40F18 !important;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div id="start-screen">
+      <h1> Quiz da FMP </h1>
+      <p>Você conhece bem a Faculdade Municipal de Palhoça? Vamos descobrir!</p>
+      <button onclick="startQuiz()">Começar o Quiz 🚀</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+      <div id="question-container"></div>
+      <div id="options-container" class="options"></div>
+      <button onclick="nextQuestion()" id="next-btn" class="hidden">Próxima ➡️</button>
+    </div>
+
+    <div id="result-screen" class="hidden">
+      <h2>Resultado Final</h2>
+      <p id="score"></p>
+      <button onclick="location.reload()">Tentar Novamente 🔁</button>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      { question: "Em que ano a FMP foi fundada?", options: ["2004", "2006", "2005"], answer: 2 },
+      { question: "Em qual bairro fica localizada a FMP?", options: ["Centro", "Ponte do Imaruim", "Pedra Branca"], answer: 1 },
+      { question: "Quantos laboratórios de informática tem na FMP?", options: ["5", "6", "7"], answer: 0 },
+      { question: "Qual dos cursos abaixo NÃO é oferecido na FMP?", options: ["Administração", "Técnico de Enfermagem", "ADS"], answer: 1 },
+      { question: "Qual a duração do curso de Licenciatura em Pedagogia na FMP?", options: ["3 anos", "4 anos", "5 anos"], answer: 1 },
+      { question: "A FMP já mudou de prédio 3 vezes:", options: ["Verdadeiro", "Falso"], answer: 1 },
+      { question: "O curso de ADS é da área de:", options: ["Biológicas", "Exatas", "Humanas"], answer: 1 },
+      { question: "A logo do SGA é um:", options: ["Pinguim", "Guaxinim", "Cupim"], answer: 0 },
+      { question: "A Faculdade Municipal de Palhoça é uma instituição:", options: ["Federal", "Estadual", "Pública municipal"], answer: 2 },
+      { question: "O docente Leandro Pickler é garoto propaganda da:", options: ["Xiaomi", "Motorola", "Apple"], answer: 2 },
+      { question: "A FMP está ligada diretamente a qual órgão?", options: ["MEC", "Prefeitura de Palhoça", "Governo Estadual"], answer: 1 },
+      { question: "O preço do café preto pequeno na cantina é:", options: ["10,00", "4,50", "5,00"], answer: 1 },
+      { question: "Quais desses países têm convênios internacionais com a FMP?", options: ["Guiné", "Camarões", "Haiti"], answer: 0 },
+      { question: "Qual é o nome da atual diretora da FMP?", options: ["Bárbara Raquel Schutz", "Regina Raquel Schutz", "Débora Raquel Schutz"], answer: 2 },
+      { question: "Qual é a ordem correta do domínio do email institucional para ALUNOS da FMP?", options: ["@aluno.fmp.sc.edu.br", "@fmp.sc.aluno.edu.br", "@aluno.fmpsc.edu.br"], answer: 2 },
+      { question: "A sigla FMP significa:", options: ["Faculdade Multidisciplinar de Palhoça", "Faculdade Municipal de Palhoça", "Formação Multidisciplinar de Palhoça"], answer: 1 },
+      { question: "A duração do curso de ADS na FMP é de:", options: ["2 anos", "2,5 anos", "3 anos"], answer: 1 },
+      { question: "A FMP teve a primeira formatura de ADS em qual ano?", options: ["2012", "2019", "2023"], answer: 2 },
+      { question: "Quantos cursos de pós graduação FMP oferece?", options: ["1", "2", "3"], answer: 1 },
+      { question: "Quantos cursos para a comunidade a COPER oferece?", options: ["5", "6", "4"], answer: 0 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const questionContainer = document.getElementById('question-container');
+    const optionsContainer = document.getElementById('options-container');
+    const nextBtn = document.getElementById('next-btn');
+    const scoreDisplay = document.getElementById('score');
+
+    function startQuiz() {
+      startScreen.classList.add('hidden');
+      quizScreen.classList.remove('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = quizData[currentQuestion];
+      questionContainer.innerHTML = `<h3 class="question">${q.question}</h3>`;
+      optionsContainer.innerHTML = '';
+      nextBtn.classList.add('hidden');
+
+      q.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(selected) {
+      const q = quizData[currentQuestion];
+      const buttons = optionsContainer.querySelectorAll('button');
+
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+        if (index === q.answer) btn.classList.add('correct');
+        else if (index === selected) btn.classList.add('wrong');
+      });
+
+      if (selected === q.answer) score++;
+      nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      quizScreen.classList.add('hidden');
+      resultScreen.classList.remove('hidden');
+      scoreDisplay.textContent = `Você acertou ${score} de ${quizData.length}`;
+    }
+  </script>
+</body>
+</html>
